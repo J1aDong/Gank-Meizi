@@ -11,7 +11,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -75,7 +74,8 @@ public class MainActivity extends BaseActivity {
     ReboundImageView mIvNext;
     @BindView(R.id.iv_pre)
     ReboundImageView mIvPre;
-    private List<Meizi> mList;
+    @BindView(R.id.bs_topic)
+    LinearLayout mBsTopic;
 
     /**
      * 进来后网络请求后显示图片
@@ -120,11 +120,19 @@ public class MainActivity extends BaseActivity {
                 mTvIcon.getLayoutParams().height = (int) (height * slideOffset);
                 mTvIcon.requestLayout();
 
-                slideOffset = (float) (0.9 - slideOffset);
-                if (slideOffset < 0) {
-                    slideOffset = 0;
+                mIvHead.setAlpha(1 - slideOffset);
+            }
+        });
+
+        //点击底部栏的头部切换展开收拢效果
+        mBsRoot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                    mBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                } else {
+                    mBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 }
-                mIvHead.setAlpha(slideOffset);
             }
         });
 
@@ -297,9 +305,9 @@ public class MainActivity extends BaseActivity {
                         mHistoryDates = gankDates;
                         KLog.w("历史日期", mHistoryDates.size());
                         if (mHistoryDates.get(0).compareTo(MyUtil.getToadyGankDate())) {
-                            SnackUtil.showShort(MainActivity.this, "有今天的Gank");
+                            SnackUtil.showShort(MainActivity.this, "今天的Gank更新拉");
                         } else {
-                            SnackUtil.showShort(MainActivity.this, "没有今天的Gank");
+                            SnackUtil.showShort(MainActivity.this, "今天木有更新Gank");
                         }
                         mHistoryDatePosition = 0;
                         GankDate gankDate = mHistoryDates.get(0);
@@ -310,7 +318,7 @@ public class MainActivity extends BaseActivity {
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
-                        SnackUtil.showShort(MainActivity.this, "获取历史日期列表");
+                        SnackUtil.showShort(MainActivity.this, "获取历史日期列表失败");
                     }
                 });
     }

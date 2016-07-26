@@ -57,12 +57,13 @@
     <LinearLayout
         android:id="@+id/bs_root"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="500dp"
         android:background="@color/white"
         android:orientation="vertical"
         app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
         <LinearLayout
+            android:id="@+id/bs_topic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -91,6 +92,6 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_ganks"
             android:layout_width="match_parent"
-            android:layout_height="420dp" />
+            android:layout_height="match_parent" />
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

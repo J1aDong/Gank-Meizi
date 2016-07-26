@@ -34,9 +34,9 @@ public class RightDrawable extends Drawable {
 
         mStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mStrokePaint.setColor(view.getContext().getResources().getColor(R.color.red));
-        mStrokePaint.setStrokeCap(Paint.Cap.ROUND);
         mStrokePaint.setStyle(Paint.Style.STROKE);
         mStrokePaint.setStrokeWidth(MyUtil.dp2px(view.getContext(), 4));
+        mStrokePaint.setStrokeCap(Paint.Cap.ROUND);
 
         view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                                                                  @Override
