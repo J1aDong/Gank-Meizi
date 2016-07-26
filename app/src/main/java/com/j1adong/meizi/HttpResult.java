@@ -1,7 +1,5 @@
 package com.j1adong.meizi;
 
-import java.util.List;
-
 /**
  * Created by J1aDong on 16/7/21.
  */

@@ -35,6 +35,7 @@ import com.j1adong.meizi.ui.RightDrawable;
 import com.j1adong.meizi.util.MyUtil;
 import com.j1adong.meizi.util.SnackUtil;
 import com.j1adong.meizi.util.StatusBarUtil;
+import com.j1adong.recyclerviewhelper.stickyhead.StickyRecyclerHeadersDecoration;
 import com.socks.library.KLog;
 import com.tumblr.backboard.Actor;
 import com.tumblr.backboard.MotionProperty;
@@ -140,6 +141,9 @@ public class MainActivity extends BaseActivity {
         mRvGanks.setItemAnimator(new DefaultItemAnimator());
         mGankAdapter = new GankAdapter(MainActivity.this, R.layout.item_gank, mGankDatas);
         mRvGanks.setAdapter(mGankAdapter);
+
+        StickyRecyclerHeadersDecoration headersDecoration = new StickyRecyclerHeadersDecoration(mGankAdapter);
+        mRvGanks.addItemDecoration(headersDecoration);
 
         getHistoryDate();
 //        getMeizi();

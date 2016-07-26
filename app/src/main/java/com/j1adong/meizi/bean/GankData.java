@@ -98,4 +98,22 @@ public class GankData {
     public void setWho(String who) {
         this.who = who;
     }
+
+    public long getTypeId() {
+        if (type.equals("Android")) {
+            return 0;
+        } else if (type.equals("iOS")) {
+            return 1;
+        } else if (type.equals("前端")) {
+            return 2;
+        } else if (type.equals("休息视频")) {
+            return 3;
+        } else if (type.equals("App")) {
+            return 4;
+        } else if (type.equals("福利")) {
+            return 5;
+        } else {
+            return -1;
+        }
+    }
 }
