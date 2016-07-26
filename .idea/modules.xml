@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Gank-Meizi.iml" filepath="$PROJECT_DIR$/Gank-Meizi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/blurview/blurview.iml" filepath="$PROJECT_DIR$/blurview/blurview.iml" />
+      <module fileurl="file://$PROJECT_DIR$/liteasync/liteasync.iml" filepath="$PROJECT_DIR$/liteasync/liteasync.iml" />
+      <module fileurl="file://$PROJECT_DIR$/progressHUD/progressHUD.iml" filepath="$PROJECT_DIR$/progressHUD/progressHUD.iml" />
+      <module fileurl="file://$PROJECT_DIR$/quotation/quotation.iml" filepath="$PROJECT_DIR$/quotation/quotation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/recyclerviewHelper/recyclerviewHelper.iml" filepath="$PROJECT_DIR$/recyclerviewHelper/recyclerviewHelper.iml" />
+    </modules>
+  </component>
+</project>

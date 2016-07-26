@@ -1,0 +1,17 @@
+<resources>
+    <attr name="pressable" format="boolean" />
+
+    <declare-styleable name="UITextView">
+        <attr name="pressable" />
+        <attr name="fontFamily" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="UIImageView">
+        <attr name="borderRadius" format="dimension" />
+        <attr name="type" format="enum">
+            <enum name="circle" value="0" />
+            <enum name="round" value="1" />
+        </attr>
+        <attr name="pressable" />
+    </declare-styleable>
+</resources>
