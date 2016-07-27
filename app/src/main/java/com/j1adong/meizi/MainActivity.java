@@ -26,8 +26,8 @@ import com.j1adong.blurview.BlurImageView;
 import com.j1adong.meizi.adapter.GankAdapter;
 import com.j1adong.meizi.bean.GankData;
 import com.j1adong.meizi.bean.GankDatas;
-import com.j1adong.meizi.bean.Meizi;
 import com.j1adong.meizi.rx.rxandroid.SchedulersCompat;
+import com.j1adong.meizi.ui.HamburgerDrawable;
 import com.j1adong.meizi.ui.LeftDrawable;
 import com.j1adong.meizi.ui.ReboundImageView;
 import com.j1adong.meizi.ui.RefreshImageView;
@@ -82,6 +82,8 @@ public class MainActivity extends BaseActivity {
      * 进来后网络请求后显示图片
      */
     boolean mIsFirstShow = true;
+    @BindView(R.id.iv_hamburger)
+    ReboundImageView mIvHamburger;
     private List<GankData> mGankDatas = new ArrayList<>();
     private GankAdapter mGankAdapter;
     private List<GankDate> mHistoryDates;
@@ -102,6 +104,8 @@ public class MainActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         StatusBarUtil.setTranslucentForImageView(this, mRlContent);
+
+        onPreActivityAnimation();
 
         mBehavior = BottomSheetBehavior.from(mBsRoot);
         mBehavior.setPeekHeight(MyUtil.dp2px(this, 40));
@@ -159,6 +163,19 @@ public class MainActivity extends BaseActivity {
                     getGankByDate(gankDate.getYear(), gankDate.getMonth(), gankDate.getDay());
 
                     mIvRefresh.start();
+                }
+            }
+        });
+
+        final HamburgerDrawable hamburgerDrawable = new HamburgerDrawable(mIvHamburger);
+        mIvHamburger.setDrawable(hamburgerDrawable);
+        mIvHamburger.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (hamburgerDrawable.getType() == HamburgerDrawable.MENU) {
+                    hamburgerDrawable.setType(HamburgerDrawable.ERROR);
+                } else {
+                    hamburgerDrawable.setType(HamburgerDrawable.MENU);
                 }
             }
         });
@@ -269,16 +286,17 @@ public class MainActivity extends BaseActivity {
      * @param flag
      */
     private void hideAll(boolean flag) {
+        int duration = 200;
         if (flag) {
-            mBsRoot.animate().setInterpolator(new DecelerateInterpolator()).setDuration(100).alpha(0f).start();
-            mIvRefresh.animate().setInterpolator(new DecelerateInterpolator()).setDuration(100).alpha(0f).start();
-            mIvNext.animate().setInterpolator(new DecelerateInterpolator()).setDuration(100).alpha(0f).start();
-            mIvPre.animate().setInterpolator(new DecelerateInterpolator()).setDuration(100).alpha(0f).start();
+            mBsRoot.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(0.f).start();
+            mIvRefresh.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(0.f).start();
+            mIvNext.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(0.f).start();
+            mIvPre.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(0.f).start();
         } else {
-            mBsRoot.animate().setInterpolator(new DecelerateInterpolator()).setDuration(100).alpha(1f).start();
-            mIvRefresh.animate().setInterpolator(new DecelerateInterpolator()).setDuration(100).alpha(1f).start();
-            mIvNext.animate().setInterpolator(new DecelerateInterpolator()).setDuration(100).alpha(1f).start();
-            mIvPre.animate().setInterpolator(new DecelerateInterpolator()).setDuration(100).alpha(1f).start();
+            mBsRoot.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(1.f).start();
+            mIvRefresh.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(1.f).start();
+            mIvNext.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(1.f).start();
+            mIvPre.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(1.f).start();
         }
     }
 
@@ -322,7 +340,12 @@ public class MainActivity extends BaseActivity {
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
-                        SnackUtil.showShort(MainActivity.this, "获取历史日期列表失败");
+                        SnackUtil.showShortWithAction(MainActivity.this, "获取历史日期列表失败", "退出", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                finish();
+                            }
+                        });
                     }
                 });
     }
@@ -399,5 +422,34 @@ public class MainActivity extends BaseActivity {
                 mIvHead.animate().setDuration(100).alpha(0).setInterpolator(new DecelerateInterpolator()).start();
             }
         });
+    }
+
+    @Override
+    public void onPreActivityAnimation() {
+        final List<View> views = new ArrayList<>();
+        views.add(mIvPre);
+        views.add(mIvNext);
+        views.add(mIvRefresh);
+
+        for (View view : views) {
+            view.setAlpha(0.f);
+        }
+
+        getWindow().getDecorView().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < views.size(); i++) {
+                    View view = views.get(i);
+                    view.setTranslationY(-200);
+                    view.setAlpha(0.f);
+                    view.animate().translationY(0).alpha(1.f)
+                            .setStartDelay(200 * i)
+                            .setInterpolator(new DecelerateInterpolator(2.f))
+                            .setDuration(500)
+                            .start();
+                }
+            }
+        }, 200);
+
     }
 }

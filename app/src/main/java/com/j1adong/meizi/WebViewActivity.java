@@ -36,4 +36,9 @@ public class WebViewActivity extends BaseActivity {
             }
         });
     }
+
+    @Override
+    public void onPreActivityAnimation() {
+
+    }
 }
