@@ -1,17 +1,17 @@
-package com.j1adong.meizi;
+package com.j1adong.meizi.activity;
 
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -19,14 +19,20 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.facebook.rebound.SpringSystem;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.j1adong.blurview.BlurImageView;
+import com.j1adong.meizi.Api;
+import com.j1adong.meizi.GankDate;
+import com.j1adong.meizi.HttpResult;
+import com.j1adong.meizi.R;
+import com.j1adong.meizi.UIImageView;
 import com.j1adong.meizi.adapter.GankAdapter;
 import com.j1adong.meizi.bean.GankData;
 import com.j1adong.meizi.bean.GankDatas;
 import com.j1adong.meizi.rx.rxandroid.SchedulersCompat;
+import com.j1adong.meizi.ui.BottomSheetUtil;
+import com.j1adong.meizi.ui.CircleDrawable;
 import com.j1adong.meizi.ui.HamburgerDrawable;
 import com.j1adong.meizi.ui.LeftDrawable;
 import com.j1adong.meizi.ui.ReboundImageView;
@@ -37,7 +43,6 @@ import com.j1adong.meizi.util.SnackUtil;
 import com.j1adong.meizi.util.StatusBarUtil;
 import com.j1adong.recyclerviewhelper.stickyhead.StickyRecyclerHeadersDecoration;
 import com.socks.library.KLog;
-import com.tumblr.backboard.Actor;
 import com.tumblr.backboard.MotionProperty;
 import com.tumblr.backboard.imitator.Imitator;
 import com.tumblr.backboard.imitator.InertialImitator;
@@ -55,8 +60,6 @@ public class MainActivity extends BaseActivity {
 
     @BindView(R.id.iv_meizi)
     BlurImageView mIvMeizi;
-    @BindView(R.id.iv_head)
-    UIImageView mIvHead;
     @BindView(R.id.rv_ganks)
     RecyclerView mRvGanks;
     @BindView(R.id.rl_content)
@@ -69,8 +72,6 @@ public class MainActivity extends BaseActivity {
     TextView mTvDate;
     @BindView(R.id.tv_icon)
     UIImageView mTvIcon;
-    @BindView(R.id.constraint)
-    FrameLayout mConstraint;
     @BindView(R.id.iv_next)
     ReboundImageView mIvNext;
     @BindView(R.id.iv_pre)
@@ -84,6 +85,8 @@ public class MainActivity extends BaseActivity {
     boolean mIsFirstShow = true;
     @BindView(R.id.iv_hamburger)
     ReboundImageView mIvHamburger;
+    @BindView(R.id.iv_menu)
+    UIImageView mIvMenu;
     private List<GankData> mGankDatas = new ArrayList<>();
     private GankAdapter mGankAdapter;
     private List<GankDate> mHistoryDates;
@@ -96,6 +99,9 @@ public class MainActivity extends BaseActivity {
      * 当前的显示的日期在历史日期中的position
      */
     private int mHistoryDatePosition;
+    private BottomSheetUtil mBottomSheetUtil;
+    private List<View> mPreActivityViews;
+    private List<View> mBSAnimationViews;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,9 +118,28 @@ public class MainActivity extends BaseActivity {
 
         mBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
+        mBSAnimationViews = new ArrayList<>();
+        mBSAnimationViews.add(mIvHamburger);
+        mBSAnimationViews.add(mIvPre);
+        mBSAnimationViews.add(mIvNext);
+        mIvMenu.setTranslationY(-MyUtil.dp2px(this, 100));
         mBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    for (int i = 0; i < mBSAnimationViews.size(); i++) {
+                        View view = mBSAnimationViews.get(i);
+                        view.animate().setDuration(500).translationY(-MyUtil.dp2px(view.getContext(), 100)).setInterpolator(new FastOutSlowInInterpolator()).setStartDelay(i * 60).start();
+                    }
+                    mIvMenu.setVisibility(View.VISIBLE);
+                    mIvMenu.animate().setDuration(500).translationY(0.f).setInterpolator(new DecelerateInterpolator(2.f)).setStartDelay(100).start();
+                } else if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    for (int i = 0; i < mBSAnimationViews.size(); i++) {
+                        View view = mBSAnimationViews.get(i);
+                        view.animate().setDuration(500).translationY(0.f).setInterpolator(new DecelerateInterpolator(2.f)).setStartDelay(i * 40).start();
+                    }
+                    mIvMenu.animate().setDuration(500).translationY(-MyUtil.dp2px(bottomSheet.getContext(), 100)).setInterpolator(new DecelerateInterpolator(2.f)).setStartDelay(100).start();
+                }
             }
 
             @Override
@@ -125,7 +150,14 @@ public class MainActivity extends BaseActivity {
                 mTvIcon.getLayoutParams().height = (int) (height * slideOffset);
                 mTvIcon.requestLayout();
 
-                mIvHead.setAlpha(1 - slideOffset);
+//                mIvHead.setAlpha(1 - slideOffset);
+            }
+        });
+
+        mIvMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startToUserProfileActivity(view);
             }
         });
 
@@ -162,23 +194,13 @@ public class MainActivity extends BaseActivity {
                     mTvDate.setText(gankDate.getYYYYMMdd());
                     getGankByDate(gankDate.getYear(), gankDate.getMonth(), gankDate.getDay());
 
-                    mIvRefresh.start();
+                    mIvRefresh.refresh();
                 }
             }
         });
 
-        final HamburgerDrawable hamburgerDrawable = new HamburgerDrawable(mIvHamburger);
-        mIvHamburger.setDrawable(hamburgerDrawable);
-        mIvHamburger.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (hamburgerDrawable.getType() == HamburgerDrawable.MENU) {
-                    hamburgerDrawable.setType(HamburgerDrawable.ERROR);
-                } else {
-                    hamburgerDrawable.setType(HamburgerDrawable.MENU);
-                }
-            }
-        });
+        setupMenuDrawable();
+        setupHamburgerDrawable();
 
         RightDrawable rightDrawable = new RightDrawable(mIvNext);
         mIvNext.setDrawable(rightDrawable);
@@ -192,7 +214,7 @@ public class MainActivity extends BaseActivity {
                     mTvDate.setText(gankDate.getYYYYMMdd());
                     getGankByDate(gankDate.getYear(), gankDate.getMonth(), gankDate.getDay());
 
-                    mIvRefresh.start();
+                    mIvRefresh.refresh();
                 } else {
                     SnackUtil.showShort(MainActivity.this, "到最新了");
                 }
@@ -212,7 +234,7 @@ public class MainActivity extends BaseActivity {
                     mTvDate.setText(gankDate.getYYYYMMdd());
                     getGankByDate(gankDate.getYear(), gankDate.getMonth(), gankDate.getDay());
 
-                    mIvRefresh.start();
+                    mIvRefresh.refresh();
                 } else {
                     SnackUtil.showShort(MainActivity.this, "到底了");
                 }
@@ -227,26 +249,6 @@ public class MainActivity extends BaseActivity {
                 new InertialImitator(MotionProperty.Y, Imitator.TRACK_DELTA,
                         Imitator.FOLLOW_SPRING, 0, 0);
 
-        new Actor.Builder(SpringSystem.create(), mIvHead)
-                .addMotion(motionImitatorX, View.TRANSLATION_X)
-                .addMotion(motionImitatorY, View.TRANSLATION_Y)
-                .build();
-
-        final View rootView = getWindow().getDecorView().findViewById(android.R.id.content);
-        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                motionImitatorX.setMinValue(
-                        -mConstraint.getMeasuredWidth() / 2 + mIvHead.getMeasuredWidth() / 2);
-                motionImitatorX.setMaxValue(
-                        mConstraint.getMeasuredWidth() / 2 - mIvHead.getMeasuredWidth() / 2);
-                motionImitatorY.setMinValue(
-                        -mConstraint.getMeasuredHeight() / 2 + mIvHead.getMeasuredWidth() / 2);
-                motionImitatorY.setMaxValue(
-                        mConstraint.getMeasuredHeight() / 2 - mIvHead.getMeasuredWidth() / 2);
-                rootView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-            }
-        });
 
         final float[] alpha = {0};
         final boolean[] flag = {false};
@@ -254,7 +256,6 @@ public class MainActivity extends BaseActivity {
             @Override
             public boolean onLongClick(View view) {
                 flag[0] = true;
-                alpha[0] = mIvHead.getAlpha();
                 clearMeizi();
                 hideAll(true);
                 mIvMeizi.animate().setDuration(100).setInterpolator(new DecelerateInterpolator())
@@ -268,7 +269,6 @@ public class MainActivity extends BaseActivity {
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP && flag[0]) {
                     showMeizi(mMeiziDatas);
-                    mIvHead.setAlpha(alpha[0]);
                     hideAll(false);
                     flag[0] = false;
                     mIvMeizi.animate().setDuration(100).setInterpolator(new DecelerateInterpolator())
@@ -280,6 +280,65 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    private void setupMenuDrawable() {
+        mIvMenu.setImageDrawable(getResources().getDrawable(R.mipmap.hzw));
+    }
+
+    /**
+     * 设置汉堡包图案
+     */
+    private void setupHamburgerDrawable() {
+        final HamburgerDrawable hamburgerDrawable = new HamburgerDrawable(mIvHamburger);
+        mIvHamburger.setDrawable(hamburgerDrawable);
+        mIvHamburger.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                if (hamburgerDrawable.getType() == HamburgerDrawable.MENU) {
+
+                    if (null != mBottomSheetUtil && null != mHistoryDates) {
+                        hamburgerDrawable.setType(HamburgerDrawable.ERROR);
+                        mBottomSheetUtil.show();
+                        mBottomSheetUtil.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialogInterface) {
+                                hamburgerDrawable.setType(HamburgerDrawable.MENU);
+                            }
+                        });
+                        mBottomSheetUtil.setOnItemClickListener(new BottomSheetUtil.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(int position) {
+                                KLog.w("按了" + position);
+                                mBottomSheetUtil.dismiss();
+
+                                mHistoryDatePosition = position;
+                                GankDate gankDate = mHistoryDates.get(mHistoryDatePosition);
+                                mTvDate.setText(gankDate.getYYYYMMdd());
+                                getGankByDate(gankDate.getYear(), gankDate.getMonth(), gankDate.getDay());
+                                mIvRefresh.refresh();
+                            }
+                        });
+                    }
+
+                } else {
+                    hamburgerDrawable.setType(HamburgerDrawable.MENU);
+                }
+            }
+        });
+    }
+
+    /**
+     * 跳转到UserProfile的页面
+     *
+     * @param view
+     */
+    private void startToUserProfileActivity(View view) {
+        int[] startingLocation = new int[2];
+        view.getLocationOnScreen(startingLocation);
+        startingLocation[0] += view.getWidth() / 2;
+        UserProfileActivity.startUserProfileFromLocation(startingLocation, MainActivity.this);
+        overridePendingTransition(0, 0);
+    }
+
     /**
      * 隐藏除背景图以外的view
      *
@@ -288,15 +347,19 @@ public class MainActivity extends BaseActivity {
     private void hideAll(boolean flag) {
         int duration = 200;
         if (flag) {
+            mIvHamburger.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(0.f).start();
             mBsRoot.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(0.f).start();
             mIvRefresh.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(0.f).start();
             mIvNext.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(0.f).start();
             mIvPre.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(0.f).start();
+            mIvMenu.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(0.f).start();
         } else {
+            mIvHamburger.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(1.f).start();
             mBsRoot.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(1.f).start();
             mIvRefresh.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(1.f).start();
             mIvNext.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(1.f).start();
             mIvPre.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(1.f).start();
+            mIvMenu.animate().setInterpolator(new DecelerateInterpolator()).setStartDelay(0).setDuration(duration).alpha(1.f).start();
         }
     }
 
@@ -335,6 +398,19 @@ public class MainActivity extends BaseActivity {
                         GankDate gankDate = mHistoryDates.get(0);
                         mTvDate.setText(gankDate.getYYYYMMdd());
                         getGankByDate(gankDate.getYear(), gankDate.getMonth(), gankDate.getDay());
+
+                        Observable.from(mHistoryDates).map(new Func1<GankDate, String>() {
+                            @Override
+                            public String call(GankDate gankDate) {
+                                return gankDate.getYYYYMMdd();
+                            }
+                        }).toList().compose(SchedulersCompat.<List<String>>applyExecutorSchedulers())
+                                .subscribe(new Action1<List<String>>() {
+                                    @Override
+                                    public void call(List<String> list) {
+                                        mBottomSheetUtil = new BottomSheetUtil(MainActivity.this, "请选择日期", list);
+                                    }
+                                });
 
                     }
                 }, new Action1<Throwable>() {
@@ -408,7 +484,7 @@ public class MainActivity extends BaseActivity {
                 mTvIcon.setImageBitmap(resource);
             }
         });
-        Glide.with(getApplicationContext()).load(meiziDatas.get(i).getUrl()).into(mIvHead);
+//        Glide.with(getApplicationContext()).load(meiziDatas.get(i).getUrl()).into(mIvHead);
     }
 
     private void clearMeizi() {
@@ -419,27 +495,28 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                 mIvMeizi.clear(resource);
-                mIvHead.animate().setDuration(100).alpha(0).setInterpolator(new DecelerateInterpolator()).start();
+//                mIvHead.animate().setDuration(100).alpha(0).setInterpolator(new DecelerateInterpolator()).start();
             }
         });
     }
 
     @Override
     public void onPreActivityAnimation() {
-        final List<View> views = new ArrayList<>();
-        views.add(mIvPre);
-        views.add(mIvNext);
-        views.add(mIvRefresh);
+        mPreActivityViews = new ArrayList<>();
+        mPreActivityViews.add(mIvPre);
+        mPreActivityViews.add(mIvNext);
+        mPreActivityViews.add(mIvRefresh);
+        mPreActivityViews.add(mIvHamburger);
 
-        for (View view : views) {
+        for (View view : mPreActivityViews) {
             view.setAlpha(0.f);
         }
 
         getWindow().getDecorView().postDelayed(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i < views.size(); i++) {
-                    View view = views.get(i);
+                for (int i = 0; i < mPreActivityViews.size(); i++) {
+                    View view = mPreActivityViews.get(i);
                     view.setTranslationY(-200);
                     view.setAlpha(0.f);
                     view.animate().translationY(0).alpha(1.f)

@@ -69,7 +69,7 @@ public class RefreshImageView extends ImageView {
         mScaleSpring.removeListener(mScaleSpringListener);
     }
 
-    public void start() {
+    public void refresh() {
         final ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(this, "rotation", 0f, 360f);
         objectAnimator.setDuration(800);
         objectAnimator.setInterpolator(new DecelerateInterpolator());

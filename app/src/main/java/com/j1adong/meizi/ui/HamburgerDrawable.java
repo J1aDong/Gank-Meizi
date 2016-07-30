@@ -32,6 +32,7 @@ public class HamburgerDrawable extends Drawable {
 
     @TYPE
     private int mType = MENU;
+
     public static final int MENU = 0;
     public static final int ERROR = 1;
     public static final int LEFT = 2;
@@ -39,7 +40,6 @@ public class HamburgerDrawable extends Drawable {
     @IntDef({MENU, ERROR, LEFT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface TYPE {
-
     }
 
     //Menu图案
@@ -60,12 +60,14 @@ public class HamburgerDrawable extends Drawable {
         mStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mStrokePaint.setColor(view.getContext().getResources().getColor(R.color.red));
         mStrokePaint.setStyle(Paint.Style.STROKE);
+        mStrokePaint.setStrokeJoin(Paint.Join.ROUND);
         mStrokePaint.setStrokeCap(Paint.Cap.ROUND);
         mStrokePaint.setStrokeWidth(MyUtil.dp2px(view.getContext(), 3));
 
         mStrokePaint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
         mStrokePaint2.setColor(view.getContext().getResources().getColor(R.color.red));
         mStrokePaint2.setStyle(Paint.Style.STROKE);
+        mStrokePaint2.setStrokeJoin(Paint.Join.ROUND);
         mStrokePaint2.setStrokeCap(Paint.Cap.ROUND);
         mStrokePaint2.setStrokeWidth(MyUtil.dp2px(view.getContext(), 3));
 

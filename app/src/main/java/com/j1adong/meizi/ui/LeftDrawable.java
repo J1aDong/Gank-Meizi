@@ -36,6 +36,7 @@ public class LeftDrawable extends Drawable {
         mStrokePaint.setColor(view.getContext().getResources().getColor(R.color.red));
         mStrokePaint.setStyle(Paint.Style.STROKE);
         mStrokePaint.setStrokeWidth(MyUtil.dp2px(view.getContext(), 4));
+        mStrokePaint.setStrokeJoin(Paint.Join.ROUND);
         mStrokePaint.setStrokeCap(Paint.Cap.ROUND);
 
         view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {

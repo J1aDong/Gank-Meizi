@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
+import com.j1adong.meizi.activity.BaseActivity;
 import com.j1adong.meizi.util.StatusBarUtil;
 
 import butterknife.BindView;

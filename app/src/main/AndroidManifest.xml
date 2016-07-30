@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,6 +25,10 @@
         <activity
             android:name=".WebViewActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.UserProfileActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Translucent" />
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package com.j1adong.meizi;
+package com.j1adong.meizi.activity;
 
 import android.support.v7.app.AppCompatActivity;
 

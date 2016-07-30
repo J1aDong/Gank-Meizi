@@ -149,7 +149,7 @@ public abstract class RvBaseAdapter<T> extends RecyclerView.Adapter<RvBaseAdapte
                     .setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
-//                            animationsLocked = true;
+                            animationsLocked = true;
                         }
                     })
                     .start();
@@ -161,6 +161,7 @@ public abstract class RvBaseAdapter<T> extends RecyclerView.Adapter<RvBaseAdapte
     }
 
     public void setPreRefresh() {
+        animationsLocked = false;
         mLastAnimatedPosition = -1;
     }
 

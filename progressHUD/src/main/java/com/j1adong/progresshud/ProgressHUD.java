@@ -36,7 +36,7 @@ public class ProgressHUD {
     @IntDef({None, Clear, Black, Gradient, ClearCancel, BlackCancel, GradientCancel})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ProgressHUDMaskType {
-    }git
+    }
 
     @ProgressHUDMaskType
     private int mProgressHUDMaskType;
