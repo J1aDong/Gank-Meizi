@@ -40,6 +40,46 @@
                     app:layout_collapseMode="parallax"
                     app:layout_collapseParallaxMultiplier="0.7" />
 
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_collapseMode="parallax"
+                    app:layout_collapseParallaxMultiplier="0.8">
+
+                    <com.j1adong.meizi.ui.UIImageView
+                        android:id="@+id/iv_icon"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:layout_marginLeft="30dp"
+                        android:layout_marginTop="40dp"
+                        android:scaleType="centerCrop"
+                        android:src="@mipmap/hzw"
+                        app:type="circle" />
+
+                    <com.j1adong.meizi.ui.UITextView
+                        android:id="@+id/tv_name"
+                        style="@style/TextShadow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="50dp"
+                        android:layout_toRightOf="@id/iv_icon"
+                        android:text="J1aDong"
+                        android:textColor="@color/tv_white"
+                        android:textSize="32sp"
+                        app:fontFamily="@string/font_fzqk" />
+
+                    <com.j1adong.meizi.ui.UITextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignLeft="@id/tv_name"
+                        android:text="991383877@qq.com"
+                        app:fontFamily="@string/font_fzqk"
+                        android:textSize="16sp"
+                        android:alpha="0.7"
+                        android:layout_below="@id/tv_name" />
+                </RelativeLayout>
+
                 <android.support.v7.widget.Toolbar
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
@@ -55,6 +95,7 @@
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/white60"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
     </android.support.design.widget.CoordinatorLayout>
 </FrameLayout>

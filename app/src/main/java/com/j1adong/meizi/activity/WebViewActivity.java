@@ -1,10 +1,12 @@
-package com.j1adong.meizi;
+package com.j1adong.meizi.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
+import com.j1adong.meizi.Config;
+import com.j1adong.meizi.R;
 import com.j1adong.meizi.activity.BaseActivity;
 import com.j1adong.meizi.util.StatusBarUtil;
 

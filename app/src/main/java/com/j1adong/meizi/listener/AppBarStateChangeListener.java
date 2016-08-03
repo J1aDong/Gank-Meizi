@@ -1,4 +1,4 @@
-package com.j1adong.meizi;
+package com.j1adong.meizi.listener;
 
 import android.support.design.widget.AppBarLayout;
 

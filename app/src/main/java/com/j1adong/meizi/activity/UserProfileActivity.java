@@ -1,5 +1,7 @@
 package com.j1adong.meizi.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -14,12 +16,14 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.animation.DecelerateInterpolator;
 
 import com.j1adong.blurview.BlurImageView;
-import com.j1adong.meizi.AppBarStateChangeListener;
+import com.j1adong.meizi.listener.AppBarStateChangeListener;
 import com.j1adong.meizi.R;
 import com.j1adong.meizi.adapter.SimpleStringAdapter;
 import com.j1adong.meizi.ui.RevealBackgroundView;
+import com.j1adong.meizi.util.MyUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +65,10 @@ public class UserProfileActivity extends BaseActivity {
         setContentView(R.layout.activity_user_profile);
         ButterKnife.bind(this);
 
+        mRevealbackground.setFillPaintColor(getResources().getColor(R.color.colorPrimary));
+
+        mCollapsingToolbarLayout.setTitle(" ");
+
 
 //        StatusBarUtil.setTranslucentForImageView(this,0,null);
 
@@ -71,31 +79,6 @@ public class UserProfileActivity extends BaseActivity {
 //        mCollapsingToolbarLayout.setCollapsedTitleTextColor(Color.GREEN);//设置收缩后Toolbar上字体的颜色
         setupToolbar();
         setupRevealbackGround(savedInstanceState);
-
-        mAppbarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
-            @Override
-            public void onStateChanged(AppBarLayout appBarLayout, State state) {
-                if (state == State.EXPANDED) {
-                    mIvBackground.clear(BitmapFactory.decodeResource(getResources(), R.mipmap.hzw));
-                } else if (state == State.COLLAPSED) {
-                    mIvBackground.blur(BitmapFactory.decodeResource(getResources(), R.mipmap.hzw));
-                }
-            }
-        });
-
-        mRecyclerView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                List<String> strings = new ArrayList<>();
-                for (int i = 0; i < 50; i++) {
-                    strings.add("项目" + i);
-                }
-                final SimpleStringAdapter adapter = new SimpleStringAdapter(UserProfileActivity.this, R.layout.item_bottom_sheet_dialog, strings);
-                mRecyclerView.setLayoutManager(new LinearLayoutManager(UserProfileActivity.this));
-                mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-                mRecyclerView.setAdapter(adapter);
-            }
-        }, 100);
 
     }
 
@@ -120,6 +103,8 @@ public class UserProfileActivity extends BaseActivity {
                 if (state == RevealBackgroundView.STATE_FINISHED) {
                     mRecyclerView.setVisibility(View.VISIBLE);
                     mAppbarLayout.setVisibility(View.VISIBLE);
+
+                    onPreActivityAnimation();
                 } else {
                     mRecyclerView.setVisibility(View.INVISIBLE);
                     mAppbarLayout.setVisibility(View.INVISIBLE);
@@ -143,7 +128,34 @@ public class UserProfileActivity extends BaseActivity {
 
     @Override
     public void onPreActivityAnimation() {
+        mIvBackground.blur(BitmapFactory.decodeResource(getResources(), R.mipmap.hzw));
 
+        mAppbarLayout.setTranslationY(MyUtil.dp2px(this, -100));
+        mAppbarLayout.setAlpha(0.f);
+        mAppbarLayout.animate().setDuration(300).alpha(1.f).setInterpolator(new DecelerateInterpolator()).setStartDelay(20).translationY(0).start();
+
+        mRecyclerView.setTranslationY(MyUtil.dp2px(this, 100));
+        mRecyclerView.setAlpha(0.f);
+        mRecyclerView.animate().setDuration(300).alpha(1.f).setInterpolator(new DecelerateInterpolator()).setStartDelay(20).translationY(0).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                setupRecyclerView();
+            }
+        }).start();
+
+
+    }
+
+    private void setupRecyclerView() {
+        List<String> strings = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            strings.add("项目" + i);
+        }
+        final SimpleStringAdapter adapter = new SimpleStringAdapter(UserProfileActivity.this, R.layout.item_bottom_sheet_dialog, strings);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(UserProfileActivity.this));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setAdapter(adapter);
     }
 
     @Override

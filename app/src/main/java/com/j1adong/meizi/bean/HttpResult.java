@@ -1,4 +1,4 @@
-package com.j1adong.meizi;
+package com.j1adong.meizi.bean;
 
 /**
  * Created by J1aDong on 16/7/21.

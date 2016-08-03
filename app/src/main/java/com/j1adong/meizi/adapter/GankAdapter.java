@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.j1adong.meizi.Config;
 import com.j1adong.meizi.R;
-import com.j1adong.meizi.WebViewActivity;
+import com.j1adong.meizi.activity.WebViewActivity;
 import com.j1adong.meizi.bean.GankData;
 import com.j1adong.meizi.util.MyUtil;
 import com.j1adong.recyclerviewhelper.RvBaseAdapter;

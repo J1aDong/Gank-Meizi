@@ -1,9 +1,10 @@
-package com.j1adong.meizi;
+package com.j1adong.meizi.api;
 
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.j1adong.meizi.App;
 import com.j1adong.meizi.util.NetWorkUtil;
 
 import java.io.File;

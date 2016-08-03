@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.j1adong.meizi.UIImageView
+        <com.j1adong.meizi.ui.UIImageView
             android:id="@+id/iv_menu"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -54,6 +54,34 @@
             android:layout_marginTop="16dp"
             android:layout_toLeftOf="@id/iv_next" />
 
+        <LinearLayout
+            android:id="@+id/ll_quotation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:padding="32dp">
+
+            <com.j1adong.meizi.ui.UITextView
+                android:id="@+id/tv_quotation_content"
+                style="@style/TextShadow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/white60"
+                app:fontFamily="@string/font_fzqk" />
+
+            <com.j1adong.meizi.ui.UITextView
+                android:id="@+id/tv_quotation_book"
+                style="@style/TextShadow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:textColor="@color/red"
+                app:fontFamily="@string/font_fzqk" />
+        </LinearLayout>
+
     </RelativeLayout>
 
     <LinearLayout
@@ -70,7 +98,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <com.j1adong.meizi.UIImageView
+            <com.j1adong.meizi.ui.UIImageView
                 android:id="@+id/tv_icon"
                 android:layout_width="80dp"
                 android:layout_height="80dp"

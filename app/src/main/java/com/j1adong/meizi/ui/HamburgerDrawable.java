@@ -1,5 +1,7 @@
 package com.j1adong.meizi.ui;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -141,6 +143,12 @@ public class HamburgerDrawable extends Drawable {
             ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
             animator.setDuration(500);
             animator.setInterpolator(new DecelerateInterpolator(2.f));
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                }
+            });
             animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator valueAnimator) {

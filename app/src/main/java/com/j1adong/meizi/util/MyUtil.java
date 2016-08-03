@@ -9,14 +9,11 @@ import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.widget.TextView;
 
-import com.j1adong.meizi.GankDate;
-import com.j1adong.meizi.bean.GankData;
+import com.j1adong.meizi.bean.GankDate;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,7 +66,7 @@ public class MyUtil {
 
     /**
      * 字符串转换成日期
-     * <p>
+     * <p/>
      * 2015-10-27T02:43:16.906000
      *
      * @param s
@@ -101,5 +98,12 @@ public class MyUtil {
         String[] dates = dateString.split("-");
         GankDate gankDate = new GankDate(Integer.valueOf(dates[0]), Integer.valueOf(dates[1]), Integer.valueOf(dates[2]));
         return gankDate;
+    }
+
+    public static int getRandom(int min, int max) {
+        Random random = new Random();
+
+        int s = random.nextInt(max) % (max - min + 1) + min;
+        return s;
     }
 }

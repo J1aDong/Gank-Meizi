@@ -1,4 +1,4 @@
-package com.j1adong.meizi;
+package com.j1adong.meizi.api;
 
 import retrofit2.http.GET;
 import retrofit2.http.Path;

@@ -1,4 +1,4 @@
-package com.j1adong.meizi;
+package com.j1adong.meizi.ui;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -17,6 +17,7 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
+import com.j1adong.meizi.R;
 import com.j1adong.meizi.util.MyUtil;
 
 /**

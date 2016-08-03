@@ -68,8 +68,8 @@ public class ProgressHUD {
 
     private void initViews() {
         LayoutInflater layoutInflater = LayoutInflater.from(mContext);
-        mContentView = (ViewGroup) ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
-        mRootView = (ViewGroup) layoutInflater.inflate(R.layout.layout_progresshud,null);
+        mContentView = (ViewGroup) ((Activity) mContext).getWindow().getDecorView().findViewById(android.R.id.content);
+        mRootView = (ViewGroup) layoutInflater.inflate(R.layout.layout_progresshud, null);
         //使rootView能够填充视图
         mRootView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
@@ -81,10 +81,10 @@ public class ProgressHUD {
     }
 
     private void initAnimation() {
-        if ( null == inAnimation){
+        if (null == inAnimation) {
             inAnimation = getInAnimation();
         }
-        if ( null == outAnimation){
+        if (null == outAnimation) {
             outAnimation = getOutAnimation();
         }
     }
@@ -92,9 +92,9 @@ public class ProgressHUD {
     /**
      * show的时候调用
      */
-    private void onAttached(){
+    private void onAttached() {
         mContentView.addView(mRootView);
-        if (null != mSharedView.getParent()){
+        if (null != mSharedView.getParent()) {
             ((ViewGroup) mSharedView.getParent()).removeView(mSharedView);
         }
         mRootView.addView(mSharedView);
@@ -103,28 +103,28 @@ public class ProgressHUD {
     /**
      * 添加这个View到activity的根视图
      */
-    private void svShow(){
+    private void svShow() {
         mHandler.removeCallbacksAndMessages(null);
-        if (!isShowing()){
+        if (!isShowing()) {
             onAttached();
         }
 
         mSharedView.startAnimation(inAnimation);
     }
 
-    public void show(){
+    public void show() {
         setMaskType(Black);
         mSharedView.show();
         svShow();
     }
 
-    public void showWithMaskType(@ProgressHUDMaskType int type){
+    public void showWithMaskType(@ProgressHUDMaskType int type) {
         setMaskType(type);
         mSharedView.show();
         svShow();
     }
 
-    public void showWithStatus(String string){
+    public void showWithStatus(String string) {
         setMaskType(Black);
         mSharedView.showWithStatus(string);
         svShow();
@@ -180,7 +180,7 @@ public class ProgressHUD {
 
     private void setMaskType(@ProgressHUDMaskType int maskType) {
         mProgressHUDMaskType = maskType;
-        switch (mProgressHUDMaskType){
+        switch (mProgressHUDMaskType) {
             case None:
                 configMaskType(android.R.color.transparent, false, false);
                 break;
@@ -225,16 +225,16 @@ public class ProgressHUD {
     }
 
     private Animation getInAnimation() {
-        int res = ProgrssHUDAnimateUtil.getAnimationResource(this.mGravity,true);
-        return AnimationUtils.loadAnimation(mContext,res);
+        int res = ProgrssHUDAnimateUtil.getAnimationResource(this.mGravity, true);
+        return AnimationUtils.loadAnimation(mContext, res);
     }
 
     private Animation getOutAnimation() {
-        int res = ProgrssHUDAnimateUtil.getAnimationResource(this.mGravity,false);
-        return AnimationUtils.loadAnimation(mContext,res);
+        int res = ProgrssHUDAnimateUtil.getAnimationResource(this.mGravity, false);
+        return AnimationUtils.loadAnimation(mContext, res);
     }
 
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -247,25 +247,25 @@ public class ProgressHUD {
      *
      * @param isCancelable
      */
-    private void setCancelable(boolean isCancelable){
+    private void setCancelable(boolean isCancelable) {
         View view = mRootView.findViewById(R.id.out_container);
 
-        if (isCancelable){
+        if (isCancelable) {
             view.setOnTouchListener(onCancelableTouchListener);
-        }else {
+        } else {
             view.setOnTouchListener(null);
         }
     }
 
-    private void scheduleDismiss(){
+    private void scheduleDismiss() {
         mHandler.removeCallbacksAndMessages(null);
-        mHandler.sendEmptyMessageDelayed(0,DISMISSDELAYED);
+        mHandler.sendEmptyMessageDelayed(0, DISMISSDELAYED);
     }
 
     private final View.OnTouchListener onCancelableTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-            if ( MotionEvent.ACTION_DOWN == motionEvent.getAction()){
+            if (MotionEvent.ACTION_DOWN == motionEvent.getAction()) {
                 dismiss();
                 setCancelable(false);
             }
@@ -299,6 +299,7 @@ public class ProgressHUD {
     };
 
     private void dismissImmediately() {
+        mSharedView.stopProgressAnim();
         mRootView.removeView(mSharedView);
         mContentView.removeView(mRootView);
         mContext = null;

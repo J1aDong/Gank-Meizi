@@ -21,8 +21,7 @@ public class ProgressDefaultView extends LinearLayout {
     private TextView tvMsg;
     private MaterialProgressDrawable materialProgressDrawable;
     private int[] colors = {
-            0xFFFF0000, 0xFFFF7F00, 0xFFFFFF00, 0xFF00FF00
-            , 0xFF00FFFF, 0xFF0000FF, 0xFF8B00FF
+            0xF4a60616
     };
     private int CIRCLE_BG_LIGHT = 0xFFFAFAFA;
 
@@ -64,11 +63,11 @@ public class ProgressDefaultView extends LinearLayout {
     }
 
     public void showInfoWithStatus(String string) {
-        showBaseStatus(resInfo,string);
+        showBaseStatus(resInfo, string);
     }
 
     public void showSuccessWithStatus(String string) {
-        showBaseStatus(resSuccess,string);
+        showBaseStatus(resSuccess, string);
     }
 
     public void showErrorWithStatus(String string) {
@@ -82,5 +81,9 @@ public class ProgressDefaultView extends LinearLayout {
         ivBigLoading.setVisibility(GONE);
         ivSmallLoading.setVisibility(VISIBLE);
         tvMsg.setVisibility(VISIBLE);
+    }
+
+    public void stopProgressAnim() {
+        materialProgressDrawable.stop();
     }
 }

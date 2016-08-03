@@ -22,25 +22,29 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.j1adong.blurview.BlurImageView;
-import com.j1adong.meizi.Api;
-import com.j1adong.meizi.GankDate;
-import com.j1adong.meizi.HttpResult;
+import com.j1adong.meizi.api.Api;
+import com.j1adong.meizi.Config;
+import com.j1adong.meizi.bean.GankDate;
+import com.j1adong.meizi.bean.HttpResult;
 import com.j1adong.meizi.R;
-import com.j1adong.meizi.UIImageView;
+import com.j1adong.meizi.ui.UIImageView;
 import com.j1adong.meizi.adapter.GankAdapter;
 import com.j1adong.meizi.bean.GankData;
 import com.j1adong.meizi.bean.GankDatas;
 import com.j1adong.meizi.rx.rxandroid.SchedulersCompat;
 import com.j1adong.meizi.ui.BottomSheetUtil;
-import com.j1adong.meizi.ui.CircleDrawable;
 import com.j1adong.meizi.ui.HamburgerDrawable;
 import com.j1adong.meizi.ui.LeftDrawable;
 import com.j1adong.meizi.ui.ReboundImageView;
 import com.j1adong.meizi.ui.RefreshImageView;
 import com.j1adong.meizi.ui.RightDrawable;
+import com.j1adong.meizi.ui.UITextView;
 import com.j1adong.meizi.util.MyUtil;
 import com.j1adong.meizi.util.SnackUtil;
 import com.j1adong.meizi.util.StatusBarUtil;
+import com.j1adong.progresshud.ProgressHUD;
+import com.j1adong.quotation.JsonUtil;
+import com.j1adong.quotation.Quotation;
 import com.j1adong.recyclerviewhelper.stickyhead.StickyRecyclerHeadersDecoration;
 import com.socks.library.KLog;
 import com.tumblr.backboard.MotionProperty;
@@ -87,6 +91,12 @@ public class MainActivity extends BaseActivity {
     ReboundImageView mIvHamburger;
     @BindView(R.id.iv_menu)
     UIImageView mIvMenu;
+    @BindView(R.id.tv_quotation_content)
+    UITextView mTvQuotationContent;
+    @BindView(R.id.tv_quotation_book)
+    UITextView mTvQuotationBook;
+    @BindView(R.id.ll_quotation)
+    LinearLayout mLlQuotation;
     private List<GankData> mGankDatas = new ArrayList<>();
     private GankAdapter mGankAdapter;
     private List<GankDate> mHistoryDates;
@@ -102,6 +112,8 @@ public class MainActivity extends BaseActivity {
     private BottomSheetUtil mBottomSheetUtil;
     private List<View> mPreActivityViews;
     private List<View> mBSAnimationViews;
+    private List<Quotation> mLuoluoList;
+    private ProgressHUD mProgressHUD;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +123,9 @@ public class MainActivity extends BaseActivity {
 
         StatusBarUtil.setTranslucentForImageView(this, mRlContent);
 
+        mProgressHUD = new ProgressHUD(this);
+
+        mProgressHUD.showWithStatus("正在加载");
         onPreActivityAnimation();
 
         mBehavior = BottomSheetBehavior.from(mBsRoot);
@@ -118,11 +133,14 @@ public class MainActivity extends BaseActivity {
 
         mBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
+        setupLuoLuo();
+
         mBSAnimationViews = new ArrayList<>();
         mBSAnimationViews.add(mIvHamburger);
         mBSAnimationViews.add(mIvPre);
         mBSAnimationViews.add(mIvNext);
         mIvMenu.setTranslationY(-MyUtil.dp2px(this, 100));
+        mLlQuotation.setAlpha(0.f);
         mBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
@@ -149,6 +167,8 @@ public class MainActivity extends BaseActivity {
                 mTvIcon.getLayoutParams().width = (int) (width * slideOffset);
                 mTvIcon.getLayoutParams().height = (int) (height * slideOffset);
                 mTvIcon.requestLayout();
+
+                mLlQuotation.setAlpha(1 - slideOffset);
 
 //                mIvHead.setAlpha(1 - slideOffset);
             }
@@ -195,6 +215,7 @@ public class MainActivity extends BaseActivity {
                     getGankByDate(gankDate.getYear(), gankDate.getMonth(), gankDate.getDay());
 
                     mIvRefresh.refresh();
+                    setupLuoLuo();
                 }
             }
         });
@@ -280,6 +301,31 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    private void setupLuoLuo() {
+        if (null == mLuoluoList) {
+            Observable.just(JsonUtil.getRandomLuoluo(this, Config.LUO_LUO_QUOTATION)).map(new Func1<List<Quotation>, Quotation>() {
+                @Override
+                public Quotation call(List<Quotation> list) {
+                    mLuoluoList = list;
+                    int i = MyUtil.getRandom(0, list.size() - 1);
+                    return list.get(i);
+                }
+            }).compose(SchedulersCompat.<Quotation>applyExecutorSchedulers())
+                    .subscribe(new Action1<Quotation>() {
+                        @Override
+                        public void call(Quotation quotation) {
+                            KLog.w(quotation.getBook());
+                            mTvQuotationContent.setText(quotation.getContent());
+                            mTvQuotationBook.setText(quotation.getBook());
+                        }
+                    });
+        } else {
+            Quotation quotation = mLuoluoList.get(MyUtil.getRandom(0, mLuoluoList.size() - 1));
+            mTvQuotationContent.setText(quotation.getContent());
+            mTvQuotationBook.setText(quotation.getBook());
+        }
+    }
+
     private void setupMenuDrawable() {
         mIvMenu.setImageDrawable(getResources().getDrawable(R.mipmap.hzw));
     }
@@ -297,7 +343,12 @@ public class MainActivity extends BaseActivity {
 
                     if (null != mBottomSheetUtil && null != mHistoryDates) {
                         hamburgerDrawable.setType(HamburgerDrawable.ERROR);
-                        mBottomSheetUtil.show();
+                        mIvHamburger.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mBottomSheetUtil.show();
+                            }
+                        }, 200);
                         mBottomSheetUtil.setOnDismissListener(new DialogInterface.OnDismissListener() {
                             @Override
                             public void onDismiss(DialogInterface dialogInterface) {
@@ -364,7 +415,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void getHistoryDate() {
-        Api.getApiService().getHistoryDate().flatMap(new Func1<String, Observable<String>>() {
+        Api.getApiService().getHistoryDate().retry(2).flatMap(new Func1<String, Observable<String>>() {
             @Override
             public Observable<String> call(String s) {
                 HttpResult<List<String>> result = new Gson().fromJson(s, new TypeToken<HttpResult<List<String>>>() {
@@ -427,6 +478,9 @@ public class MainActivity extends BaseActivity {
     }
 
     private void getGankByDate(int year, int month, int day) {
+        if (!mProgressHUD.isShowing()) {
+            mProgressHUD.showWithStatus("正在加载");
+        }
         Api.getApiService().getGankByDate(year, month, day).flatMap(new Func1<String, Observable<GankDatas>>() {
             @Override
             public Observable<GankDatas> call(String s) {
@@ -456,6 +510,13 @@ public class MainActivity extends BaseActivity {
 
                         showMeizi(mMeiziDatas);
 
+                        mRvGanks.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mProgressHUD.dismiss();
+                            }
+                        }, 200);
+
                         mRvGanks.scrollToPosition(0);
                         mGankDatas.clear();
                         mGankDatas.addAll(gankDatas);
@@ -465,6 +526,7 @@ public class MainActivity extends BaseActivity {
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
+                        mProgressHUD.dismiss();
                         SnackUtil.showShort(MainActivity.this, "获取Gank数据失败");
                     }
                 });
@@ -484,7 +546,6 @@ public class MainActivity extends BaseActivity {
                 mTvIcon.setImageBitmap(resource);
             }
         });
-//        Glide.with(getApplicationContext()).load(meiziDatas.get(i).getUrl()).into(mIvHead);
     }
 
     private void clearMeizi() {

@@ -7,5 +7,6 @@
     <color name="white30">#4effffff</color>
     <color name="black">#000000</color>
     <color name="red">#f4a60616</color>
+    <color name="tv_white">#e1e1e1</color>
 
 </resources>
